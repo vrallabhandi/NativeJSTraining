@@ -14,7 +14,7 @@ function partitionOn(pred, items) {
 
     items.splice(0, items.length);
     falseValues.concat(trueValues).forEach(function (item) {
-        items.splice(items.length, 0, item);
+        items.push(item);
     });
     
     return falseValues.length;
