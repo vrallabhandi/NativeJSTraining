@@ -1,0 +1,7 @@
+{
+    "youtubeAPI": "https://www.googleapis.com/youtube/v3/search",
+    "apiKey": "AIzaSyCTWC75i70moJLzyNh3tt4jzCljZcRkU8Y",
+    "type": "video",
+    "part": "snippet",
+    "maxResults": "15"
+}
