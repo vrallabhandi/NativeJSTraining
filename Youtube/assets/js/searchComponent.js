@@ -28,6 +28,8 @@ class SearchComponent {
         searchSection.appendChild(searchButton);
 
         document.body.appendChild(searchSection);
+
+        this.attachResizeHandler();
     }
 
     searchVideos(evt) {
@@ -43,7 +45,7 @@ class SearchComponent {
         };
         utility.resetTotalCards();
 
-        httpHelper.makeGetCall(url, params, (response) => {
+        httpHelper.makeGetCall(url, params).then((response) => {
             utility.setTotalCards(response.items);
             this.renderVideoCards();
         });
@@ -51,6 +53,12 @@ class SearchComponent {
 
     renderVideoCards() {
         yt.renderCards();
+    }
+
+    attachResizeHandler() {
+        window.addEventListener('resize', (evt) => {
+            this.renderVideoCards();
+        })
     }
 }
 

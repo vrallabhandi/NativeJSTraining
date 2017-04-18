@@ -52,7 +52,11 @@ class Youtube {
         allCardsEl.classList.add('search-results');
         
         for (let i=startIndex; i < (startIndex + numberOfCards); i++) {
-            allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
+            if (cardsData[i]) {
+                allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
+            } else {
+                // get next page of records
+            }
         }
 
         allCardsEl.appendChild(allCardsFragment);

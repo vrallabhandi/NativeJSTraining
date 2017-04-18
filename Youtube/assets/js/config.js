@@ -8,12 +8,15 @@ class Config {
             instance = this;
         }
 
-        httpHelper.makeGetCall('./config.json', null, (response) => {
-            this.configKeys = response;
-        }, false);
+        httpHelper.makeGetCall('./config.json', null)
+            .then((response) => {
+                this.configKeys = response;
+            });
 
         return instance;
     }
 }
+
+new Config();
 
 export default Config;

@@ -1,20 +1,17 @@
 class HttpHelper {
     constructor() { }
-    makeGetCall(url, params, cb, isAsync) {
-        var xhr = new XMLHttpRequest();
 
+    makeGetCall(url, params) {
         url = url + '?' + this.buildParams(params);
-
-        xhr.open('GET', url, isAsync);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                cb(response);
-            } else {
-                alert('Request failed.  Returned status of ' + xhr.status);
-            }
-        };
-        xhr.send();
+        var promise = new Promise((resolve, reject) => {
+            fetch(url)
+                .then(function (res) {
+                    resolve(res.json());
+                }, function (err) {
+                    reject(err);
+                });
+        });
+        return promise;
     }
 
     buildParams(object) {

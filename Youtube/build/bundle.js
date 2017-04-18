@@ -152,7 +152,11 @@ var Youtube = function () {
             allCardsEl.classList.add('search-results');
 
             for (var i = startIndex; i < startIndex + numberOfCards; i++) {
-                allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
+                if (cardsData[i]) {
+                    allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
+                } else {
+                    // get next page of records
+                }
             }
 
             allCardsEl.appendChild(allCardsFragment);
@@ -250,12 +254,14 @@ var Config = function Config() {
         instance = this;
     }
 
-    httpHelper.makeGetCall('./config.json', null, function (response) {
+    httpHelper.makeGetCall('./config.json', null).then(function (response) {
         _this.configKeys = response;
-    }, false);
+    });
 
     return instance;
 };
+
+new Config();
 
 exports.default = Config;
 
@@ -282,21 +288,16 @@ var HttpHelper = function () {
 
     _createClass(HttpHelper, [{
         key: 'makeGetCall',
-        value: function makeGetCall(url, params, cb, isAsync) {
-            var xhr = new XMLHttpRequest();
-
+        value: function makeGetCall(url, params) {
             url = url + '?' + this.buildParams(params);
-
-            xhr.open('GET', url, isAsync);
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    cb(response);
-                } else {
-                    alert('Request failed.  Returned status of ' + xhr.status);
-                }
-            };
-            xhr.send();
+            var promise = new Promise(function (resolve, reject) {
+                fetch(url).then(function (res) {
+                    resolve(res.json());
+                }, function (err) {
+                    reject(err);
+                });
+            });
+            return promise;
         }
     }, {
         key: 'buildParams',
@@ -381,6 +382,8 @@ var SearchComponent = function () {
             searchSection.appendChild(searchButton);
 
             document.body.appendChild(searchSection);
+
+            this.attachResizeHandler();
         }
     }, {
         key: 'searchVideos',
@@ -399,7 +402,7 @@ var SearchComponent = function () {
             };
             utility.resetTotalCards();
 
-            httpHelper.makeGetCall(url, params, function (response) {
+            httpHelper.makeGetCall(url, params).then(function (response) {
                 utility.setTotalCards(response.items);
                 _this.renderVideoCards();
             });
@@ -408,6 +411,15 @@ var SearchComponent = function () {
         key: 'renderVideoCards',
         value: function renderVideoCards() {
             yt.renderCards();
+        }
+    }, {
+        key: 'attachResizeHandler',
+        value: function attachResizeHandler() {
+            var _this2 = this;
+
+            window.addEventListener('resize', function (evt) {
+                _this2.renderVideoCards();
+            });
         }
     }]);
 
