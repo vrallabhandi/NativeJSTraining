@@ -2,32 +2,29 @@
 
 <head>
     <title>My Youtube Page</title>
-    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/css/font-awesome.css" />
+    <link rel="stylesheet" href="./assets/css/style.css" />    
 </head>
 
 <body>
-    link for text on image -> http://jsfiddle.net/j08691/dChUR/5/
     <template id='videoCardTpl'>
         <div class="video-card">
             <div class='thumbnail'>
+                <div class="title"></div>
                 <img alt='image here' />
             </div>
             <div class="channel">
-                <span class="channelTitle"></span>
-            </div>
-            <div class="date-of-publish">
-                <span class="publishedDate"></span>
-            </div>
-            <div class="views">
-                <span></span>
+                <ul class="fa-ul">
+                    <li class="channelTitle"><i class="fa-li fa fa-male"></i></li>
+                    <li class="publishedDate"><i class="fa-li fa fa-calendar"></i></li>
+                    <li class="views"><i class="fa-li fa fa-eye"></i></li>
+                </ul>
             </div>
             <p class="description">
-                
+
             </p>
-            <hr/>
         </div>
     </template>
-
     <script src="./build/bundle.js"></script>
 </body>
 

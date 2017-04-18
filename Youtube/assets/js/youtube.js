@@ -1,98 +1,60 @@
-var HttpHelper = require('./HttpHelper.js');
+import HttpHelper from './httpHelper';
+import Pagination from './pagination';
+import Config from './config';
+import Utility from './utility';
+
+var config = new Config();
+var httpHelper = new HttpHelper();
+var pagination = new Pagination();
+var utility = new Utility();
+
 class Youtube {
 
-    constructor() {
-        this.renderSearchComponent();
-        var url = 'https://www.googleapis.com/youtube/v3/search?key=AIzaSyCTWC75i70moJLzyNh3tt4jzCljZcRkU8Y&type=video&part=snippet&maxResults=15&q=neninthe';
-        this.makeGetCall(url, null, (response) => {
-            this.loadCards(response.items);
-        });
-    }
+    constructor() { }
 
-    renderSearchComponent() {
-        var searchSection = document.createElement('div');
-
-        var searchEl = document.createElement('input');
-        searchEl.setAttribute('type', 'text');
-        searchEl.setAttribute('id', 'searchText');
-
-        var searchButton = document.createElement('input');
-        searchButton.setAttribute('type', 'button');
-        searchButton.setAttribute('value', 'Search');
-        searchButton.addEventListener('click', this.searchVideos);
-
-        searchSection.appendChild(searchEl);
-        searchSection.appendChild(searchButton);
-
-        document.body.appendChild(searchSection);
-    }
-
-    renderCard(card) {
+    renderCard(card, index) {
         var t = document.querySelector('#videoCardTpl');
         var clone = document.importNode(t.content, true);
+        clone.querySelector('.video-card').setAttribute('id', 'video_' + index);
 
         var imgEl = clone.querySelector('img');
         imgEl.setAttribute('src', card.snippet.thumbnails.medium.url);
+
+        var title = clone.querySelector('.title');
+        var aTag = document.createElement('a');
+        aTag.setAttribute('href', config.configKeys.youtubeWatchLink + card.id.videoId);
+        aTag.setAttribute('target', '_blank');
+        aTag.appendChild(document.createTextNode(card.snippet.title));
+        title.appendChild(aTag);
 
         var channelTitle = clone.querySelector('.channelTitle');
         channelTitle.appendChild(document.createTextNode(card.snippet.channelTitle));
 
         var publishedDate = clone.querySelector('.publishedDate');
-        publishedDate.appendChild(document.createTextNode(this.getFormattedDate(card.snippet.publishedAt)));
+        publishedDate.appendChild(document.createTextNode(utility.getFormattedDate(card.snippet.publishedAt)));
 
         var description = clone.querySelector('.description');
         description.appendChild(document.createTextNode(card.snippet.description));
 
-        document.body.appendChild(clone);
+        return clone;
     }
 
-    getFormattedDate(date) {
-        var dt = new Date(date);
-        var month = dt.getMonth() + 1;
-        var day = dt.getDate();
-        var year = dt.getFullYear();
-        return year + "-" + month + "-" + day;
-    }
+    renderCards() {
+        var cardsData = utility.getTotalCards();
+        var allCardsEl = document.createElement('div');
+        allCardsEl.setAttribute('id', 'search-results');
+        allCardsEl.classList.add('search-results');
+        var allCardsFragment = document.createDocumentFragment();
 
-    searchVideos(evt) {
-        var searchInputEl = document.querySelector('#searchText');
-        var searchKey = searchInputEl.value;
-        console.log(searchKey);
-    }
+        var numberOfCards = utility.getNumberOfCardsToRender();
 
-    loadCards(cardsData) {
-        cardsData.forEach((eachCard) => {
-            // create an fragment and attach it later
-            this.renderCard(eachCard);
-        })
-    }
-
-    makeGetCall(url, params, cb) {
-        var xhr = new XMLHttpRequest();
-        url = url + '?' + this.param(params);
-        xhr.open('GET', url);
-        xhr.onload = function () {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                cb(response);
-            } else {
-                alert('Request failed.  Returned status of ' + xhr.status);
-            }
-        };
-        xhr.send();
-    }
-
-    param(object) {
-        var encodedString = '';
-        for (var prop in object) {
-            if (object.hasOwnProperty(prop)) {
-                if (encodedString.length > 0) {
-                    encodedString += '&';
-                }
-                encodedString += encodeURI(prop + '=' + object[prop]);
-            }
+        for (let i=0; i< numberOfCards; i++) {
+            allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
         }
-        return encodedString;
+
+        allCardsEl.appendChild(allCardsFragment);
+        document.body.appendChild(allCardsEl);
+        pagination.renderPaginationControls(cardsData);
     }
 }
 

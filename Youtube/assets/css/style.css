@@ -1,3 +1,75 @@
 body {
     background: slategrey;
 }
+
+.thumbnail {
+    position:relative;
+    display: inline-table;
+}
+
+.title {
+    float: left;
+    position: absolute;
+    width: 100%;
+    left: 0px;
+    top: 30%;
+    background-color: green;
+}
+
+.video-card {
+    display: inline-block;
+    width: 320px;
+    vertical-align: top;
+    background: white;
+    margin: 0 30px;
+    padding-left: 0px;
+    padding-top: 10px;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.search-section {
+    text-align: center;
+    padding: 10px;
+}
+
+.search-results {
+    display: inline-flex;
+    margin-top: 30px;
+}
+
+.pagination-controls {
+    display: inline-block;
+}
+
+.pagination-controls a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.pagination-controls a.active {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 5px;
+}
+
+.pagination-controls a:hover:not(.active) {
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+.fa-ul {
+    padding-left: 40px;
+}
+
+.fa-ul > li {
+    position: relative;
+    padding-bottom: 10px; 
+}
+
+.video-card > .description {
+    text-align: left;
+    padding-left: 10px;
+}

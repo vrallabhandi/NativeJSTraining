@@ -1,12 +1,15 @@
-export class HttpHelper {
+class HttpHelper {
     constructor() { }
-    makeGetCall(url, params) {
+    makeGetCall(url, params, cb, isAsync) {
         var xhr = new XMLHttpRequest();
-        url = url + '?' + param(params);
-        xhr.open('GET', url);
+
+        url = url + '?' + this.buildParams(params);
+
+        xhr.open('GET', url, isAsync);
         xhr.onload = function () {
             if (xhr.status === 200) {
-                alert('User\'s name is ' + xhr.status);
+                var response = JSON.parse(xhr.responseText);
+                cb(response);
             } else {
                 alert('Request failed.  Returned status of ' + xhr.status);
             }
@@ -14,7 +17,7 @@ export class HttpHelper {
         xhr.send();
     }
 
-    param(object) {
+    buildParams(object) {
         var encodedString = '';
         for (var prop in object) {
             if (object.hasOwnProperty(prop)) {
@@ -27,3 +30,5 @@ export class HttpHelper {
         return encodedString;
     }
 }
+
+export default HttpHelper;
