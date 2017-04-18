@@ -1,10 +1,11 @@
 // return the nested property value if it exists,
 // otherwise return undefined
 Object.prototype.hash = function (inputString) {
-    var nestedProperties = inputString.split('.');
-    var index = 0;
-    var result = this;
-    for (var i = 0; i < nestedProperties.length; i++) {
+    var nestedProperties = inputString.split('.'),
+        result = this,
+        propsLength = nestedProperties.length;
+
+    for (var i = 0; i < propsLength; i++) {
         if (result[nestedProperties[i]]) {
             result = result[nestedProperties[i]];
         } else {
