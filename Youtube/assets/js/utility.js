@@ -9,19 +9,24 @@ class Utility {
      }
 
     setTotalCards(totalCards) {
-        this.totalCards = totalCards;
+        this.totalCards = (this.totalCards || []).concat(totalCards);
     }
 
     getTotalCards() {
         return this.totalCards;
     }
 
+    resetTotalCards() {
+        this.totalCards = [];
+        this.currentPage = null;
+    }
+
     setCurrentPage(pageNumber) {
-        this.pageNumber = pageNumber;
+        this.pageNumber = parseInt(pageNumber);
     }
 
     getCurrentPage() {
-        return this.pageNumber;
+        return this.pageNumber || 1;
     }
 
     getNumberOfCardsToRender() {
@@ -32,6 +37,12 @@ class Utility {
             numberOfCards++;
         }
         return numberOfCards - 1;
+    }
+
+    getStartIndexForPage() {
+        var numberOfCards = this.getNumberOfCardsToRender();
+        var currentPage = this.getCurrentPage();
+        return (currentPage * numberOfCards) - numberOfCards
     }
 
     getFormattedDate(date) {

@@ -42,19 +42,43 @@ class Youtube {
     renderCards() {
         var cardsData = utility.getTotalCards();
         var allCardsEl = document.createElement('div');
+        var allCardsFragment = document.createDocumentFragment();
+        var numberOfCards = utility.getNumberOfCardsToRender();
+        var startIndex = utility.getStartIndexForPage();
+
+        this.clearSearchResults();
+
         allCardsEl.setAttribute('id', 'search-results');
         allCardsEl.classList.add('search-results');
-        var allCardsFragment = document.createDocumentFragment();
-
-        var numberOfCards = utility.getNumberOfCardsToRender();
-
-        for (let i=0; i< numberOfCards; i++) {
+        
+        for (let i=startIndex; i < (startIndex + numberOfCards); i++) {
             allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
         }
 
         allCardsEl.appendChild(allCardsFragment);
         document.body.appendChild(allCardsEl);
+
         pagination.renderPaginationControls(cardsData);
+        
+        this.attachPageChangeListener();
+    }
+
+    clearSearchResults() {
+        var allcardsEl = document.querySelector('#search-results');
+        if (allcardsEl) {
+            allcardsEl.parentElement.removeChild(allcardsEl);
+        }
+    }
+
+    attachPageChangeListener() {
+        var paginationControlsEl = document.querySelector('#pagination').firstElementChild;
+        paginationControlsEl.addEventListener('click', (evt) => {
+            if (evt.target.tagName === 'A') {
+                utility.setCurrentPage(evt.target.text);
+                this.renderCards();
+                pagination.markCurrentPageActive();
+            }
+        });
     }
 }
 

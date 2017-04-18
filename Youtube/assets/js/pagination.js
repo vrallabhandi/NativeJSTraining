@@ -1,8 +1,6 @@
 import Utility from './utility';
-import Youtube from './youtube';
 
 var utility = new Utility();
-var yt = new Youtube();
 
 class Pagination {
     constructor() { }
@@ -23,37 +21,14 @@ class Pagination {
         for(let i=0; i<numberOfpages; i++) {
             let aTag = document.createElement('a');
             aTag.appendChild(document.createTextNode(i+1));
+            aTag.setAttribute('id', 'page' + (i+1));
             aTag.setAttribute('href', '#');
             fragment.appendChild(aTag);
         }
         paginationControlsEl.appendChild(fragment);
         paginationEl.appendChild(paginationControlsEl);
         document.body.appendChild(paginationEl);
-
-        paginationControlsEl.addEventListener('click', function (evt) {
-            if (evt.target.tagName === 'A') {
-                utility.setCurrentPage(evt.target.text);
-                yt.renderCards();
-            }
-        });
-    }
-
-    getCardsInViewPort(allCardEls) {
-        allCardEls = Array.prototype.slice.call(allCardEls, 0, allCardEls.length);
-        return allCardEls.filter((card) => {
-            return this.isInViewport(card);
-        });
-    }
-
-    isInViewport(element) {
-        var rect = element.getBoundingClientRect();
-        var html = document.documentElement;
-        return (
-            rect.top >= 0 &&
-            rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || html.clientHeight) &&
-            rect.right <= (window.innerWidth || html.clientWidth)
-        );
+        this.markCurrentPageActive();
     }
 
     clearPaginationControls() {
@@ -67,8 +42,21 @@ class Pagination {
         var numberOfCardsInCurrentPage = utility.getNumberOfCardsToRender();
         var totalCards = utility.getTotalCards().length;
         var additionalPagesToAdd = totalCards % numberOfCardsInCurrentPage === 0 ? 0 : 1;
-        var numberOfpages = (totalCards / numberOfCardsInCurrentPage) + additionalPagesToAdd;
+        var numberOfpages = Math.floor(totalCards / numberOfCardsInCurrentPage) + additionalPagesToAdd;
         return numberOfpages;
+    }
+
+    markCurrentPageActive() {
+        var paginationEl = document.querySelector('#pagination').firstElementChild;
+        var currentPage = utility.getCurrentPage();
+        var aTag = paginationEl.querySelector('#page' + currentPage);
+
+        var previousActivePage = paginationEl.querySelector('.active');
+        if (previousActivePage) {
+            previousActivePage.classList.remove('active');
+        }
+
+        aTag.classList.add('active');
     }
 }
 

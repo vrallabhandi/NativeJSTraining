@@ -40,9 +40,8 @@ class SearchComponent {
             part: config.configKeys.part,
             type: config.configKeys.type,
             q: searchKey
-        }
-
-        this.clearSearchResults();
+        };
+        utility.resetTotalCards();
 
         httpHelper.makeGetCall(url, params, (response) => {
             utility.setTotalCards(response.items);
@@ -52,13 +51,6 @@ class SearchComponent {
 
     renderVideoCards() {
         yt.renderCards();
-    }
-
-    clearSearchResults() {
-        var allcardsEl = document.querySelector('#search-results');
-        if (allcardsEl) {
-            allcardsEl.parentElement.removeChild(allcardsEl);
-        }
     }
 }
 

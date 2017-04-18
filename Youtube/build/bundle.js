@@ -74,7 +74,7 @@
 
 
 Object.defineProperty(exports, "__esModule", {
-        value: true
+    value: true
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -105,60 +105,88 @@ var pagination = new _pagination2.default();
 var utility = new _utility2.default();
 
 var Youtube = function () {
-        function Youtube() {
-                _classCallCheck(this, Youtube);
+    function Youtube() {
+        _classCallCheck(this, Youtube);
+    }
+
+    _createClass(Youtube, [{
+        key: 'renderCard',
+        value: function renderCard(card, index) {
+            var t = document.querySelector('#videoCardTpl');
+            var clone = document.importNode(t.content, true);
+            clone.querySelector('.video-card').setAttribute('id', 'video_' + index);
+
+            var imgEl = clone.querySelector('img');
+            imgEl.setAttribute('src', card.snippet.thumbnails.medium.url);
+
+            var title = clone.querySelector('.title');
+            var aTag = document.createElement('a');
+            aTag.setAttribute('href', config.configKeys.youtubeWatchLink + card.id.videoId);
+            aTag.setAttribute('target', '_blank');
+            aTag.appendChild(document.createTextNode(card.snippet.title));
+            title.appendChild(aTag);
+
+            var channelTitle = clone.querySelector('.channelTitle');
+            channelTitle.appendChild(document.createTextNode(card.snippet.channelTitle));
+
+            var publishedDate = clone.querySelector('.publishedDate');
+            publishedDate.appendChild(document.createTextNode(utility.getFormattedDate(card.snippet.publishedAt)));
+
+            var description = clone.querySelector('.description');
+            description.appendChild(document.createTextNode(card.snippet.description));
+
+            return clone;
         }
+    }, {
+        key: 'renderCards',
+        value: function renderCards() {
+            var cardsData = utility.getTotalCards();
+            var allCardsEl = document.createElement('div');
+            var allCardsFragment = document.createDocumentFragment();
+            var numberOfCards = utility.getNumberOfCardsToRender();
+            var startIndex = utility.getStartIndexForPage();
 
-        _createClass(Youtube, [{
-                key: 'renderCard',
-                value: function renderCard(card, index) {
-                        var t = document.querySelector('#videoCardTpl');
-                        var clone = document.importNode(t.content, true);
-                        clone.querySelector('.video-card').setAttribute('id', 'video_' + index);
+            this.clearSearchResults();
 
-                        var imgEl = clone.querySelector('img');
-                        imgEl.setAttribute('src', card.snippet.thumbnails.medium.url);
+            allCardsEl.setAttribute('id', 'search-results');
+            allCardsEl.classList.add('search-results');
 
-                        var title = clone.querySelector('.title');
-                        var aTag = document.createElement('a');
-                        aTag.setAttribute('href', config.configKeys.youtubeWatchLink + card.id.videoId);
-                        aTag.setAttribute('target', '_blank');
-                        aTag.appendChild(document.createTextNode(card.snippet.title));
-                        title.appendChild(aTag);
+            for (var i = startIndex; i < startIndex + numberOfCards; i++) {
+                allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
+            }
 
-                        var channelTitle = clone.querySelector('.channelTitle');
-                        channelTitle.appendChild(document.createTextNode(card.snippet.channelTitle));
+            allCardsEl.appendChild(allCardsFragment);
+            document.body.appendChild(allCardsEl);
 
-                        var publishedDate = clone.querySelector('.publishedDate');
-                        publishedDate.appendChild(document.createTextNode(utility.getFormattedDate(card.snippet.publishedAt)));
+            pagination.renderPaginationControls(cardsData);
 
-                        var description = clone.querySelector('.description');
-                        description.appendChild(document.createTextNode(card.snippet.description));
+            this.attachPageChangeListener();
+        }
+    }, {
+        key: 'clearSearchResults',
+        value: function clearSearchResults() {
+            var allcardsEl = document.querySelector('#search-results');
+            if (allcardsEl) {
+                allcardsEl.parentElement.removeChild(allcardsEl);
+            }
+        }
+    }, {
+        key: 'attachPageChangeListener',
+        value: function attachPageChangeListener() {
+            var _this = this;
 
-                        return clone;
+            var paginationControlsEl = document.querySelector('#pagination').firstElementChild;
+            paginationControlsEl.addEventListener('click', function (evt) {
+                if (evt.target.tagName === 'A') {
+                    utility.setCurrentPage(evt.target.text);
+                    _this.renderCards();
+                    pagination.markCurrentPageActive();
                 }
-        }, {
-                key: 'renderCards',
-                value: function renderCards() {
-                        var cardsData = utility.getTotalCards();
-                        var allCardsEl = document.createElement('div');
-                        allCardsEl.setAttribute('id', 'search-results');
-                        allCardsEl.classList.add('search-results');
-                        var allCardsFragment = document.createDocumentFragment();
+            });
+        }
+    }]);
 
-                        var numberOfCards = utility.getNumberOfCardsToRender();
-
-                        for (var i = 0; i < numberOfCards; i++) {
-                                allCardsFragment.appendChild(this.renderCard(cardsData[i], i));
-                        }
-
-                        allCardsEl.appendChild(allCardsFragment);
-                        document.body.appendChild(allCardsEl);
-                        pagination.renderPaginationControls(cardsData);
-                }
-        }]);
-
-        return Youtube;
+    return Youtube;
 }();
 
 exports.default = Youtube;
@@ -369,8 +397,7 @@ var SearchComponent = function () {
                 type: config.configKeys.type,
                 q: searchKey
             };
-
-            this.clearSearchResults();
+            utility.resetTotalCards();
 
             httpHelper.makeGetCall(url, params, function (response) {
                 utility.setTotalCards(response.items);
@@ -381,14 +408,6 @@ var SearchComponent = function () {
         key: 'renderVideoCards',
         value: function renderVideoCards() {
             yt.renderCards();
-        }
-    }, {
-        key: 'clearSearchResults',
-        value: function clearSearchResults() {
-            var allcardsEl = document.querySelector('#search-results');
-            if (allcardsEl) {
-                allcardsEl.parentElement.removeChild(allcardsEl);
-            }
         }
     }]);
 
@@ -414,16 +433,11 @@ var _utility = __webpack_require__(8);
 
 var _utility2 = _interopRequireDefault(_utility);
 
-var _youtube = __webpack_require__(0);
-
-var _youtube2 = _interopRequireDefault(_youtube);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var utility = new _utility2.default();
-var yt = new _youtube2.default();
 
 var Pagination = function () {
     function Pagination() {
@@ -450,36 +464,14 @@ var Pagination = function () {
             for (var i = 0; i < numberOfpages; i++) {
                 var aTag = document.createElement('a');
                 aTag.appendChild(document.createTextNode(i + 1));
+                aTag.setAttribute('id', 'page' + (i + 1));
                 aTag.setAttribute('href', '#');
                 fragment.appendChild(aTag);
             }
             paginationControlsEl.appendChild(fragment);
             paginationEl.appendChild(paginationControlsEl);
             document.body.appendChild(paginationEl);
-
-            paginationControlsEl.addEventListener('click', function (evt) {
-                if (evt.target.tagName === 'A') {
-                    utility.setCurrentPage(evt.target.text);
-                    yt.renderCards();
-                }
-            });
-        }
-    }, {
-        key: 'getCardsInViewPort',
-        value: function getCardsInViewPort(allCardEls) {
-            var _this = this;
-
-            allCardEls = Array.prototype.slice.call(allCardEls, 0, allCardEls.length);
-            return allCardEls.filter(function (card) {
-                return _this.isInViewport(card);
-            });
-        }
-    }, {
-        key: 'isInViewport',
-        value: function isInViewport(element) {
-            var rect = element.getBoundingClientRect();
-            var html = document.documentElement;
-            return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || html.clientHeight) && rect.right <= (window.innerWidth || html.clientWidth);
+            this.markCurrentPageActive();
         }
     }, {
         key: 'clearPaginationControls',
@@ -495,8 +487,22 @@ var Pagination = function () {
             var numberOfCardsInCurrentPage = utility.getNumberOfCardsToRender();
             var totalCards = utility.getTotalCards().length;
             var additionalPagesToAdd = totalCards % numberOfCardsInCurrentPage === 0 ? 0 : 1;
-            var numberOfpages = totalCards / numberOfCardsInCurrentPage + additionalPagesToAdd;
+            var numberOfpages = Math.floor(totalCards / numberOfCardsInCurrentPage) + additionalPagesToAdd;
             return numberOfpages;
+        }
+    }, {
+        key: 'markCurrentPageActive',
+        value: function markCurrentPageActive() {
+            var paginationEl = document.querySelector('#pagination').firstElementChild;
+            var currentPage = utility.getCurrentPage();
+            var aTag = paginationEl.querySelector('#page' + currentPage);
+
+            var previousActivePage = paginationEl.querySelector('.active');
+            if (previousActivePage) {
+                previousActivePage.classList.remove('active');
+            }
+
+            aTag.classList.add('active');
         }
     }]);
 
@@ -535,7 +541,7 @@ var Utility = function () {
     _createClass(Utility, [{
         key: "setTotalCards",
         value: function setTotalCards(totalCards) {
-            this.totalCards = totalCards;
+            this.totalCards = (this.totalCards || []).concat(totalCards);
         }
     }, {
         key: "getTotalCards",
@@ -543,14 +549,20 @@ var Utility = function () {
             return this.totalCards;
         }
     }, {
+        key: "resetTotalCards",
+        value: function resetTotalCards() {
+            this.totalCards = [];
+            this.currentPage = null;
+        }
+    }, {
         key: "setCurrentPage",
         value: function setCurrentPage(pageNumber) {
-            this.pageNumber = pageNumber;
+            this.pageNumber = parseInt(pageNumber);
         }
     }, {
         key: "getCurrentPage",
         value: function getCurrentPage() {
-            return this.pageNumber;
+            return this.pageNumber || 1;
         }
     }, {
         key: "getNumberOfCardsToRender",
@@ -562,6 +574,13 @@ var Utility = function () {
                 numberOfCards++;
             }
             return numberOfCards - 1;
+        }
+    }, {
+        key: "getStartIndexForPage",
+        value: function getStartIndexForPage() {
+            var numberOfCards = this.getNumberOfCardsToRender();
+            var currentPage = this.getCurrentPage();
+            return currentPage * numberOfCards - numberOfCards;
         }
     }, {
         key: "getFormattedDate",
