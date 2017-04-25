@@ -3,7 +3,7 @@ import Youtube from './youtube'
 import Config from './config';
 import Utility from './utility';
 
-var config = new Config();
+var config = new Config(); // You could make new Config in config.js and export default this instance
 var httpHelper = new HttpHelper();
 var yt = new Youtube();
 var utility = new Utility();
@@ -55,7 +55,7 @@ class SearchComponent {
         yt.renderCards();
     }
 
-    attachResizeHandler() {
+    attachResizeHandler() { // You should check whether you should rerender page or not.
         window.addEventListener('resize', (evt) => {
             this.renderVideoCards();
         })

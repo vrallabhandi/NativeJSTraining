@@ -17,7 +17,7 @@ class HttpHelper {
     buildParams(object) {
         var encodedString = '';
         for (var prop in object) {
-            if (object.hasOwnProperty(prop)) {
+            if (object.hasOwnProperty(prop)) { // no need to check it because you iterate through object's properties.
                 if (encodedString.length > 0) {
                     encodedString += '&';
                 }
