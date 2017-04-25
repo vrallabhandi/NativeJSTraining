@@ -4,9 +4,9 @@
   "description": "Sample youtube application to learn native javascript",
   "main": "index.js",
   "scripts": {
-    "babel": "babel --presets es2015 js/index.js -o build/main.bundle.js",
-    "start": "http-server",
-    "webpack": "webpack",
+    "serve": "http-server",
+    "start": "npm run build && http-server",
+    "build": "webpack --config webpack.config.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

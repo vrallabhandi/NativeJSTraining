@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 5);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -77,21 +77,204 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _httpHelper = __webpack_require__(5);
+var _httpHelper = __webpack_require__(1);
 
 var _httpHelper2 = _interopRequireDefault(_httpHelper);
 
-var _pagination = __webpack_require__(7);
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var instance = null;
+var httpHelper = new _httpHelper2.default();
+
+var Config = function Config() {
+    var _this = this;
+
+    _classCallCheck(this, Config);
+
+    if (!instance) {
+        instance = this;
+    }
+
+    httpHelper.makeGetCall('./config.json', null).then(function (response) {
+        _this.configKeys = response;
+    });
+
+    return instance;
+};
+
+new Config();
+
+exports.default = Config;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var HttpHelper = function () {
+    function HttpHelper() {
+        _classCallCheck(this, HttpHelper);
+    }
+
+    _createClass(HttpHelper, [{
+        key: 'makeGetCall',
+        value: function makeGetCall(url, params) {
+            url = url + '?' + this.buildParams(params);
+            var promise = new Promise(function (resolve, reject) {
+                fetch(url).then(function (res) {
+                    resolve(res.json());
+                }, function (err) {
+                    reject(err);
+                });
+            });
+            return promise;
+        }
+    }, {
+        key: 'buildParams',
+        value: function buildParams(object) {
+            var encodedString = '';
+            for (var prop in object) {
+                if (object.hasOwnProperty(prop)) {
+                    if (encodedString.length > 0) {
+                        encodedString += '&';
+                    }
+                    encodedString += encodeURI(prop + '=' + object[prop]);
+                }
+            }
+            return encodedString;
+        }
+    }]);
+
+    return HttpHelper;
+}();
+
+exports.default = HttpHelper;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var instance = null;
+
+var Utility = function () {
+    function Utility() {
+        _classCallCheck(this, Utility);
+
+        if (!instance) {
+            instance = this;
+        }
+        return instance;
+    }
+
+    _createClass(Utility, [{
+        key: "setTotalCards",
+        value: function setTotalCards(totalCards) {
+            this.totalCards = (this.totalCards || []).concat(totalCards);
+        }
+    }, {
+        key: "getTotalCards",
+        value: function getTotalCards() {
+            return this.totalCards;
+        }
+    }, {
+        key: "resetTotalCards",
+        value: function resetTotalCards() {
+            this.totalCards = [];
+            this.currentPage = null;
+        }
+    }, {
+        key: "setCurrentPage",
+        value: function setCurrentPage(pageNumber) {
+            this.pageNumber = parseInt(pageNumber);
+        }
+    }, {
+        key: "getCurrentPage",
+        value: function getCurrentPage() {
+            return this.pageNumber || 1;
+        }
+    }, {
+        key: "getNumberOfCardsToRender",
+        value: function getNumberOfCardsToRender() {
+            var windowWidth = window.innerWidth;
+            var numberOfCards = 1;
+            var eachCardWidth = 380;
+            while (numberOfCards * eachCardWidth < windowWidth) {
+                numberOfCards++;
+            }
+            return numberOfCards - 1;
+        }
+    }, {
+        key: "getStartIndexForPage",
+        value: function getStartIndexForPage() {
+            var numberOfCards = this.getNumberOfCardsToRender();
+            var currentPage = this.getCurrentPage();
+            return currentPage * numberOfCards - numberOfCards;
+        }
+    }, {
+        key: "getFormattedDate",
+        value: function getFormattedDate(date) {
+            var dt = new Date(date);
+            var month = dt.getMonth() + 1;
+            var day = dt.getDate();
+            var year = dt.getFullYear();
+            return year + "-" + month + "-" + day;
+        }
+    }]);
+
+    return Utility;
+}();
+
+exports.default = Utility;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _httpHelper = __webpack_require__(1);
+
+var _httpHelper2 = _interopRequireDefault(_httpHelper);
+
+var _pagination = __webpack_require__(6);
 
 var _pagination2 = _interopRequireDefault(_pagination);
 
-var _config = __webpack_require__(3);
+var _config = __webpack_require__(0);
 
 var _config2 = _interopRequireDefault(_config);
 
-var _utility = __webpack_require__(8);
+var _utility = __webpack_require__(2);
 
 var _utility2 = _interopRequireDefault(_utility);
 
@@ -196,78 +379,7 @@ var Youtube = function () {
 exports.default = Youtube;
 
 /***/ }),
-/* 1 */,
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var _youtube = __webpack_require__(0);
-
-var _youtube2 = _interopRequireDefault(_youtube);
-
-var _searchComponent = __webpack_require__(6);
-
-var _searchComponent2 = _interopRequireDefault(_searchComponent);
-
-var _config = __webpack_require__(3);
-
-var _config2 = _interopRequireDefault(_config);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var config = new _config2.default();
-var yt = new _youtube2.default();
-var sc = new _searchComponent2.default();
-
-sc.renderSearchComponent();
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _httpHelper = __webpack_require__(5);
-
-var _httpHelper2 = _interopRequireDefault(_httpHelper);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var instance = null;
-var httpHelper = new _httpHelper2.default();
-
-var Config = function Config() {
-    var _this = this;
-
-    _classCallCheck(this, Config);
-
-    if (!instance) {
-        instance = this;
-    }
-
-    httpHelper.makeGetCall('./config.json', null).then(function (response) {
-        _this.configKeys = response;
-    });
-
-    return instance;
-};
-
-new Config();
-
-exports.default = Config;
-
-/***/ }),
-/* 4 */,
-/* 5 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -279,73 +391,19 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var HttpHelper = function () {
-    function HttpHelper() {
-        _classCallCheck(this, HttpHelper);
-    }
-
-    _createClass(HttpHelper, [{
-        key: 'makeGetCall',
-        value: function makeGetCall(url, params) {
-            url = url + '?' + this.buildParams(params);
-            var promise = new Promise(function (resolve, reject) {
-                fetch(url).then(function (res) {
-                    resolve(res.json());
-                }, function (err) {
-                    reject(err);
-                });
-            });
-            return promise;
-        }
-    }, {
-        key: 'buildParams',
-        value: function buildParams(object) {
-            var encodedString = '';
-            for (var prop in object) {
-                if (object.hasOwnProperty(prop)) {
-                    if (encodedString.length > 0) {
-                        encodedString += '&';
-                    }
-                    encodedString += encodeURI(prop + '=' + object[prop]);
-                }
-            }
-            return encodedString;
-        }
-    }]);
-
-    return HttpHelper;
-}();
-
-exports.default = HttpHelper;
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _httpHelper = __webpack_require__(5);
+var _httpHelper = __webpack_require__(1);
 
 var _httpHelper2 = _interopRequireDefault(_httpHelper);
 
-var _youtube = __webpack_require__(0);
+var _youtube = __webpack_require__(3);
 
 var _youtube2 = _interopRequireDefault(_youtube);
 
-var _config = __webpack_require__(3);
+var _config = __webpack_require__(0);
 
 var _config2 = _interopRequireDefault(_config);
 
-var _utility = __webpack_require__(8);
+var _utility = __webpack_require__(2);
 
 var _utility2 = _interopRequireDefault(_utility);
 
@@ -429,7 +487,34 @@ var SearchComponent = function () {
 exports.default = SearchComponent;
 
 /***/ }),
-/* 7 */
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _youtube = __webpack_require__(3);
+
+var _youtube2 = _interopRequireDefault(_youtube);
+
+var _searchComponent = __webpack_require__(4);
+
+var _searchComponent2 = _interopRequireDefault(_searchComponent);
+
+var _config = __webpack_require__(0);
+
+var _config2 = _interopRequireDefault(_config);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var config = new _config2.default();
+var yt = new _youtube2.default();
+var sc = new _searchComponent2.default();
+
+sc.renderSearchComponent();
+
+/***/ }),
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -441,7 +526,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _utility = __webpack_require__(8);
+var _utility = __webpack_require__(2);
 
 var _utility2 = _interopRequireDefault(_utility);
 
@@ -522,93 +607,6 @@ var Pagination = function () {
 }();
 
 exports.default = Pagination;
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var instance = null;
-
-var Utility = function () {
-    function Utility() {
-        _classCallCheck(this, Utility);
-
-        if (!instance) {
-            instance = this;
-        }
-        return instance;
-    }
-
-    _createClass(Utility, [{
-        key: "setTotalCards",
-        value: function setTotalCards(totalCards) {
-            this.totalCards = (this.totalCards || []).concat(totalCards);
-        }
-    }, {
-        key: "getTotalCards",
-        value: function getTotalCards() {
-            return this.totalCards;
-        }
-    }, {
-        key: "resetTotalCards",
-        value: function resetTotalCards() {
-            this.totalCards = [];
-            this.currentPage = null;
-        }
-    }, {
-        key: "setCurrentPage",
-        value: function setCurrentPage(pageNumber) {
-            this.pageNumber = parseInt(pageNumber);
-        }
-    }, {
-        key: "getCurrentPage",
-        value: function getCurrentPage() {
-            return this.pageNumber || 1;
-        }
-    }, {
-        key: "getNumberOfCardsToRender",
-        value: function getNumberOfCardsToRender() {
-            var windowWidth = window.innerWidth;
-            var numberOfCards = 1;
-            var eachCardWidth = 380;
-            while (numberOfCards * eachCardWidth < windowWidth) {
-                numberOfCards++;
-            }
-            return numberOfCards - 1;
-        }
-    }, {
-        key: "getStartIndexForPage",
-        value: function getStartIndexForPage() {
-            var numberOfCards = this.getNumberOfCardsToRender();
-            var currentPage = this.getCurrentPage();
-            return currentPage * numberOfCards - numberOfCards;
-        }
-    }, {
-        key: "getFormattedDate",
-        value: function getFormattedDate(date) {
-            var dt = new Date(date);
-            var month = dt.getMonth() + 1;
-            var day = dt.getDate();
-            var year = dt.getFullYear();
-            return year + "-" + month + "-" + day;
-        }
-    }]);
-
-    return Utility;
-}();
-
-exports.default = Utility;
 
 /***/ })
 /******/ ]);
