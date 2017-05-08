@@ -51,6 +51,12 @@ class Pagination {
         var currentPage = utility.getCurrentPage();
         var aTag = paginationEl.querySelector('#page' + currentPage);
 
+        if (!aTag) {
+            currentPage = 1;
+            utility.setCurrentPage(currentPage);
+            aTag = paginationEl.querySelector('#page' + currentPage);
+        }
+
         var previousActivePage = paginationEl.querySelector('.active');
         if (previousActivePage) {
             previousActivePage.classList.remove('active');

@@ -104,7 +104,7 @@ var Config = function Config() {
     return instance;
 };
 
-new Config();
+new Config(); // You could export default instance and not check in consr=tructor whether instance has been already created.
 
 exports.default = Config;
 
@@ -147,6 +147,7 @@ var HttpHelper = function () {
             var encodedString = '';
             for (var prop in object) {
                 if (object.hasOwnProperty(prop)) {
+                    // no need to check it because you iterate through object's properties.
                     if (encodedString.length > 0) {
                         encodedString += '&';
                     }
@@ -411,7 +412,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var config = new _config2.default();
+var config = new _config2.default(); // You could make new Config in config.js and export default this instance
 var httpHelper = new _httpHelper2.default();
 var yt = new _youtube2.default();
 var utility = new _utility2.default();
@@ -475,6 +476,7 @@ var SearchComponent = function () {
         value: function attachResizeHandler() {
             var _this2 = this;
 
+            // You should check whether you should rerender page or not.
             window.addEventListener('resize', function (evt) {
                 _this2.renderVideoCards();
             });
@@ -593,6 +595,12 @@ var Pagination = function () {
             var paginationEl = document.querySelector('#pagination').firstElementChild;
             var currentPage = utility.getCurrentPage();
             var aTag = paginationEl.querySelector('#page' + currentPage);
+
+            if (!aTag) {
+                currentPage = 1;
+                utility.setCurrentPage(currentPage);
+                aTag = paginationEl.querySelector('#page' + currentPage);
+            }
 
             var previousActivePage = paginationEl.querySelector('.active');
             if (previousActivePage) {
