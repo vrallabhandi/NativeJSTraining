@@ -1,25 +1,26 @@
 import HttpHelper from './httpHelper';
 import Youtube from './youtube'
-import Config from './config';
 import Utility from './utility';
+import Pagination from './pagination';
+import config from './config';
 
-var config = new Config(); // You could make new Config in config.js and export default this instance
-var httpHelper = new HttpHelper();
-var yt = new Youtube();
-var utility = new Utility();
+let httpHelper = new HttpHelper();
+let yt = new Youtube();
+let utility = new Utility();
+let pagination = new Pagination();
 
 class SearchComponent {
     constructor() { }
 
     renderSearchComponent() {
-        var searchSection = document.createElement('div');
+        let searchSection = document.createElement('div');
         searchSection.classList.add('search-section');
 
-        var searchEl = document.createElement('input');
+        let searchEl = document.createElement('input');
         searchEl.setAttribute('type', 'text');
         searchEl.setAttribute('id', 'searchText');
 
-        var searchButton = document.createElement('input');
+        let searchButton = document.createElement('input');
         searchButton.setAttribute('type', 'button');
         searchButton.setAttribute('value', 'Search');
         searchButton.addEventListener('click', this.searchVideos.bind(this));
@@ -33,19 +34,24 @@ class SearchComponent {
     }
 
     searchVideos(evt) {
-        var searchInputEl = document.querySelector('#searchText');
-        var searchKey = searchInputEl.value;
-        var url = config.configKeys.youtubeAPI;
-        var params = {
+        let searchInputEl,
+            searchKey,
+            searchUrl,
+            params;
+        searchInputEl = document.querySelector('#searchText');
+        searchKey = searchInputEl.value;
+        searchUrl = config.configKeys.youtubeAPI;
+        params = {
             key: config.configKeys.apiKey,
             maxResults: config.configKeys.maxResults,
             part: config.configKeys.part,
             type: config.configKeys.type,
             q: searchKey
         };
+
         utility.resetTotalCards();
 
-        httpHelper.makeGetCall(url, params).then((response) => {
+        httpHelper.makeGetCall(searchUrl, params).then((response) => {
             utility.setTotalCards(response.items);
             this.renderVideoCards();
         });
@@ -55,9 +61,24 @@ class SearchComponent {
         yt.renderCards();
     }
 
-    attachResizeHandler() { // You should check whether you should rerender page or not.
+    attachResizeHandler() {
         window.addEventListener('resize', (evt) => {
-            this.renderVideoCards();
+            let numberOfCardsToRender = utility.getNumberOfCardsToRender(),
+                currentNumberOfCardsInPage = document.querySelectorAll('.video-card').length;
+
+            if (currentNumberOfCardsInPage === 0) {
+                return;
+            }
+
+            if (numberOfCardsToRender > currentNumberOfCardsInPage) {
+                this.renderVideoCards();
+            } else {
+                if (numberOfCardsToRender < currentNumberOfCardsInPage) {
+                    let searchResults = document.getElementById('search-results');
+                    searchResults.removeChild(searchResults.lastChild);
+                    pagination.renderPaginationControls();
+                }
+            }
         })
     }
 }

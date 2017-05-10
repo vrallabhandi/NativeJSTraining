@@ -30,26 +30,26 @@ class Utility {
     }
 
     getNumberOfCardsToRender() {
-        var windowWidth = window.innerWidth;
-        var numberOfCards = 1;
-        var eachCardWidth = 380;
+        let windowWidth = window.innerWidth;
+        let numberOfCards = 1;
+        let eachCardWidth = 380;
         while (numberOfCards * eachCardWidth < windowWidth) {
             numberOfCards++;
         }
-        return numberOfCards - 1;
+        return numberOfCards > 1 ? numberOfCards - 1 : 1;
     }
 
     getStartIndexForPage() {
-        var numberOfCards = this.getNumberOfCardsToRender();
-        var currentPage = this.getCurrentPage();
+        let numberOfCards = this.getNumberOfCardsToRender();
+        let currentPage = this.getCurrentPage();
         return (currentPage * numberOfCards) - numberOfCards
     }
 
     getFormattedDate(date) {
-        var dt = new Date(date);
-        var month = dt.getMonth() + 1;
-        var day = dt.getDate();
-        var year = dt.getFullYear();
+        let dt = new Date(date);
+        let month = dt.getMonth() + 1;
+        let day = dt.getDate();
+        let year = dt.getFullYear();
         return year + "-" + month + "-" + day;
     }
 }

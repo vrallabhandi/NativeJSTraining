@@ -1,9 +1,6 @@
-import Youtube from './youtube';
 import SearchComponent from './searchComponent';
-import Config from './config';
+import config from './config';
 
-var config = new Config();
-var yt = new Youtube();
-var sc = new SearchComponent();
+let sc = new SearchComponent();
 
 sc.renderSearchComponent();

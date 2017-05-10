@@ -104,9 +104,7 @@ var Config = function Config() {
     return instance;
 };
 
-new Config(); // You could export default instance and not check in consr=tructor whether instance has been already created.
-
-exports.default = Config;
+exports.default = new Config();
 
 /***/ }),
 /* 1 */
@@ -132,27 +130,23 @@ var HttpHelper = function () {
         key: 'makeGetCall',
         value: function makeGetCall(url, params) {
             url = url + '?' + this.buildParams(params);
-            var promise = new Promise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 fetch(url).then(function (res) {
                     resolve(res.json());
                 }, function (err) {
                     reject(err);
                 });
             });
-            return promise;
         }
     }, {
         key: 'buildParams',
         value: function buildParams(object) {
             var encodedString = '';
             for (var prop in object) {
-                if (object.hasOwnProperty(prop)) {
-                    // no need to check it because you iterate through object's properties.
-                    if (encodedString.length > 0) {
-                        encodedString += '&';
-                    }
-                    encodedString += encodeURI(prop + '=' + object[prop]);
+                if (encodedString.length > 0) {
+                    encodedString += '&';
                 }
+                encodedString += encodeURI(prop + '=' + object[prop]);
             }
             return encodedString;
         }
@@ -225,7 +219,7 @@ var Utility = function () {
             while (numberOfCards * eachCardWidth < windowWidth) {
                 numberOfCards++;
             }
-            return numberOfCards - 1;
+            return numberOfCards > 1 ? numberOfCards - 1 : 1;
         }
     }, {
         key: "getStartIndexForPage",
@@ -271,19 +265,18 @@ var _pagination = __webpack_require__(6);
 
 var _pagination2 = _interopRequireDefault(_pagination);
 
-var _config = __webpack_require__(0);
-
-var _config2 = _interopRequireDefault(_config);
-
 var _utility = __webpack_require__(2);
 
 var _utility2 = _interopRequireDefault(_utility);
+
+var _config = __webpack_require__(0);
+
+var _config2 = _interopRequireDefault(_config);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var config = new _config2.default();
 var httpHelper = new _httpHelper2.default();
 var pagination = new _pagination2.default();
 var utility = new _utility2.default();
@@ -305,7 +298,7 @@ var Youtube = function () {
 
             var title = clone.querySelector('.title');
             var aTag = document.createElement('a');
-            aTag.setAttribute('href', config.configKeys.youtubeWatchLink + card.id.videoId);
+            aTag.setAttribute('href', _config2.default.configKeys.youtubeWatchLink + card.id.videoId);
             aTag.setAttribute('target', '_blank');
             aTag.appendChild(document.createTextNode(card.snippet.title));
             title.appendChild(aTag);
@@ -400,22 +393,26 @@ var _youtube = __webpack_require__(3);
 
 var _youtube2 = _interopRequireDefault(_youtube);
 
-var _config = __webpack_require__(0);
-
-var _config2 = _interopRequireDefault(_config);
-
 var _utility = __webpack_require__(2);
 
 var _utility2 = _interopRequireDefault(_utility);
+
+var _pagination = __webpack_require__(6);
+
+var _pagination2 = _interopRequireDefault(_pagination);
+
+var _config = __webpack_require__(0);
+
+var _config2 = _interopRequireDefault(_config);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var config = new _config2.default(); // You could make new Config in config.js and export default this instance
 var httpHelper = new _httpHelper2.default();
 var yt = new _youtube2.default();
 var utility = new _utility2.default();
+var pagination = new _pagination2.default();
 
 var SearchComponent = function () {
     function SearchComponent() {
@@ -449,19 +446,24 @@ var SearchComponent = function () {
         value: function searchVideos(evt) {
             var _this = this;
 
-            var searchInputEl = document.querySelector('#searchText');
-            var searchKey = searchInputEl.value;
-            var url = config.configKeys.youtubeAPI;
-            var params = {
-                key: config.configKeys.apiKey,
-                maxResults: config.configKeys.maxResults,
-                part: config.configKeys.part,
-                type: config.configKeys.type,
+            var searchInputEl = void 0,
+                searchKey = void 0,
+                searchUrl = void 0,
+                params = void 0;
+            searchInputEl = document.querySelector('#searchText');
+            searchKey = searchInputEl.value;
+            searchUrl = _config2.default.configKeys.youtubeAPI;
+            params = {
+                key: _config2.default.configKeys.apiKey,
+                maxResults: _config2.default.configKeys.maxResults,
+                part: _config2.default.configKeys.part,
+                type: _config2.default.configKeys.type,
                 q: searchKey
             };
+
             utility.resetTotalCards();
 
-            httpHelper.makeGetCall(url, params).then(function (response) {
+            httpHelper.makeGetCall(searchUrl, params).then(function (response) {
                 utility.setTotalCards(response.items);
                 _this.renderVideoCards();
             });
@@ -476,9 +478,23 @@ var SearchComponent = function () {
         value: function attachResizeHandler() {
             var _this2 = this;
 
-            // You should check whether you should rerender page or not.
             window.addEventListener('resize', function (evt) {
-                _this2.renderVideoCards();
+                var numberOfCardsToRender = utility.getNumberOfCardsToRender(),
+                    currentNumberOfCardsInPage = document.querySelectorAll('.video-card').length;
+
+                if (currentNumberOfCardsInPage === 0) {
+                    return;
+                }
+
+                if (numberOfCardsToRender > currentNumberOfCardsInPage) {
+                    _this2.renderVideoCards();
+                } else {
+                    if (numberOfCardsToRender < currentNumberOfCardsInPage) {
+                        var searchResults = document.getElementById('search-results');
+                        searchResults.removeChild(searchResults.lastChild);
+                        pagination.renderPaginationControls();
+                    }
+                }
             });
         }
     }]);
@@ -495,10 +511,6 @@ exports.default = SearchComponent;
 "use strict";
 
 
-var _youtube = __webpack_require__(3);
-
-var _youtube2 = _interopRequireDefault(_youtube);
-
 var _searchComponent = __webpack_require__(4);
 
 var _searchComponent2 = _interopRequireDefault(_searchComponent);
@@ -509,8 +521,6 @@ var _config2 = _interopRequireDefault(_config);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var config = new _config2.default();
-var yt = new _youtube2.default();
 var sc = new _searchComponent2.default();
 
 sc.renderSearchComponent();

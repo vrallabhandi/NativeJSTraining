@@ -17,6 +17,4 @@ class Config {
     }
 }
 
-new Config(); // You could export default instance and not check in consr=tructor whether instance has been already created.
-
-export default Config;
+export default new Config();

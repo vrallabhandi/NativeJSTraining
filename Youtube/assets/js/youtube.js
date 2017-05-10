@@ -1,50 +1,49 @@
 import HttpHelper from './httpHelper';
 import Pagination from './pagination';
-import Config from './config';
 import Utility from './utility';
+import config from './config';
 
-var config = new Config();
-var httpHelper = new HttpHelper();
-var pagination = new Pagination();
-var utility = new Utility();
+let httpHelper = new HttpHelper();
+let pagination = new Pagination();
+let utility = new Utility();
 
 class Youtube {
 
     constructor() { }
 
     renderCard(card, index) {
-        var t = document.querySelector('#videoCardTpl');
-        var clone = document.importNode(t.content, true);
+        let t = document.querySelector('#videoCardTpl');
+        let clone = document.importNode(t.content, true);
         clone.querySelector('.video-card').setAttribute('id', 'video_' + index);
 
-        var imgEl = clone.querySelector('img');
+        let imgEl = clone.querySelector('img');
         imgEl.setAttribute('src', card.snippet.thumbnails.medium.url);
 
-        var title = clone.querySelector('.title');
-        var aTag = document.createElement('a');
+        let title = clone.querySelector('.title');
+        let aTag = document.createElement('a');
         aTag.setAttribute('href', config.configKeys.youtubeWatchLink + card.id.videoId);
         aTag.setAttribute('target', '_blank');
         aTag.appendChild(document.createTextNode(card.snippet.title));
         title.appendChild(aTag);
 
-        var channelTitle = clone.querySelector('.channelTitle');
+        let channelTitle = clone.querySelector('.channelTitle');
         channelTitle.appendChild(document.createTextNode(card.snippet.channelTitle));
 
-        var publishedDate = clone.querySelector('.publishedDate');
+        let publishedDate = clone.querySelector('.publishedDate');
         publishedDate.appendChild(document.createTextNode(utility.getFormattedDate(card.snippet.publishedAt)));
 
-        var description = clone.querySelector('.description');
+        let description = clone.querySelector('.description');
         description.appendChild(document.createTextNode(card.snippet.description));
 
         return clone;
     }
 
     renderCards() {
-        var cardsData = utility.getTotalCards();
-        var allCardsEl = document.createElement('div');
-        var allCardsFragment = document.createDocumentFragment();
-        var numberOfCards = utility.getNumberOfCardsToRender();
-        var startIndex = utility.getStartIndexForPage();
+        let cardsData = utility.getTotalCards();
+        let allCardsEl = document.createElement('div');
+        let allCardsFragment = document.createDocumentFragment();
+        let numberOfCards = utility.getNumberOfCardsToRender();
+        let startIndex = utility.getStartIndexForPage();
 
         this.clearSearchResults();
 
@@ -68,14 +67,14 @@ class Youtube {
     }
 
     clearSearchResults() {
-        var allcardsEl = document.querySelector('#search-results');
+        let allcardsEl = document.querySelector('#search-results');
         if (allcardsEl) {
             allcardsEl.parentElement.removeChild(allcardsEl);
         }
     }
 
     attachPageChangeListener() {
-        var paginationControlsEl = document.querySelector('#pagination').firstElementChild;
+        let paginationControlsEl = document.querySelector('#pagination').firstElementChild;
         paginationControlsEl.addEventListener('click', (evt) => {
             if (evt.target.tagName === 'A') {
                 utility.setCurrentPage(evt.target.text);
